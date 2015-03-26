@@ -78,7 +78,9 @@ class UrlHelper
 
         if (preg_match("~^http(|s):\/\/~", $url)) {
             return self::prepare($url);
-        } elseif (preg_match("~^\/~", $url)) {
+        }  elseif (preg_match("~^\/\/(.*)~", $url, $matches)) {
+            return "http://{$matches[1]}";
+        }  elseif (preg_match("~^\/~", $url)) {
             return self::prepare($mainPageUrl . $url);
         } elseif ($url == '/') {
             return self::prepare($mainPageUrl);
