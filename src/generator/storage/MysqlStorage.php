@@ -55,13 +55,13 @@ class MysqlStorage implements UniqueValueStorage
     /**
      *
      */
-    public function __destruct()
-    {
-        $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;";
-        return $this->getConnection()
-            ->prepare($sql)
-            ->execute();
-    }
+//    public function __destruct()
+//    {
+//        $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;";
+//        return $this->getConnection()
+//            ->prepare($sql)
+//            ->execute();
+//    }
 
     /**
      * @inheritdoc
@@ -74,7 +74,7 @@ class MysqlStorage implements UniqueValueStorage
             (
                 id INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
                 url VARCHAR(255) NOT NULL
-            );
+            ) ENGINE=MyIsam AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
             CREATE UNIQUE INDEX url ON `{$this->tableName()}` (url);";
 
         $init = $this->getConnection()
@@ -107,6 +107,7 @@ class MysqlStorage implements UniqueValueStorage
             $insertSql = "INSERT INTO `{$this->tableName()}` (url) VALUES {$paramsStr}; ";
             $st = $this->getConnection()
                 ->prepare($insertSql);
+
             $result = $st->execute($unique);
 
             return $result;
@@ -142,7 +143,11 @@ class MysqlStorage implements UniqueValueStorage
             return true;
         };
 
-        $unique = array_filter($values, $callback);
+        $unique = array_values(
+            array_unique(
+                array_filter($values, $callback)
+            )
+        );
 
         return $unique;
     }
@@ -152,7 +157,7 @@ class MysqlStorage implements UniqueValueStorage
      */
     public function total()
     {
-        $st = $this->getConnection()->prepare("SELECT MAX(id) FROM `{$this->tableName()}`;");
+        $st = $this->getConnection()->prepare("SELECT COUNT(id) FROM `{$this->tableName()}`;");
         $st->execute();
         $rows = $st->fetch(\PDO::FETCH_NUM);
 
