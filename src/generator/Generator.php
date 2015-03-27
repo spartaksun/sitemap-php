@@ -17,12 +17,33 @@ class Generator
     public $loader;
 
     /**
+     * @var SiteWorker
+     */
+    public $worker;
+
+    /**
+     * @var string URL
+     */
+    public $startUrl;
+
+    /**
+     * @var int nested level
+     */
+    public $level = 1;
+
+    /**
      * @param $startUrl
+     */
+    public function __construct($startUrl)
+    {
+        $this->startUrl = $startUrl;
+    }
+
+    /**
      * @throws \ErrorException
      */
-    public function generate($startUrl)
+    public function generate()
     {
-        $worker = new SiteWorker($this);
-        $worker->run($startUrl);
+        $this->worker->run($this);
     }
 }

@@ -7,33 +7,19 @@ class HtmlParser
 {
 
     /**
-     * @var string
-     */
-    private $html;
-
-    /**
-     * @param $html
+     * @return array
      * @throws ParserException
      */
-    public function __construct($html)
+    public function getUrls($html)
     {
         if (empty($html) || !is_string($html)) {
             throw new ParserException('Empty html');
         }
 
-        $this->html = $html;
-    }
-
-    /**
-     * @return array
-     * @throws ParserException
-     */
-    public function getUrls()
-    {
         $dom = new \DOMDocument;
 
         libxml_use_internal_errors(true);
-        $dom->loadHTML($this->html);
+        $dom->loadHTML($html);
 
         $links = $dom->getElementsByTagName('a');
         /* @var $links \DOMElement[] */

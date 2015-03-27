@@ -72,8 +72,9 @@ class MysqlStorage implements UniqueValueStorage
         $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;
             CREATE TABLE `{$this->tableName()}`
             (
-                id INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
-                url VARCHAR(255) NOT NULL
+                `id` INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+                `url` VARCHAR(1000) NOT NULL,
+                `level` INT UNSIGNED DEFAULT 0
             ) ENGINE=MyIsam AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
             CREATE UNIQUE INDEX url ON `{$this->tableName()}` (url);";
 
@@ -97,14 +98,14 @@ class MysqlStorage implements UniqueValueStorage
     /**
      * @inheritdoc
      */
-    public function add(array $values)
+    public function add(array $values, $level)
     {
         $unique = $this->filterUnique($values);
         $countUniqueValues = count($unique);
 
         if($countUniqueValues > 0) {
-            $paramsStr = implode(",", array_fill(0, $countUniqueValues, '(?)'));
-            $insertSql = "INSERT INTO `{$this->tableName()}` (url) VALUES {$paramsStr}; ";
+            $paramsStr = implode(",", array_fill(0, $countUniqueValues, '(?, '.(int) $level.')'));
+            $insertSql = "INSERT INTO `{$this->tableName()}` (`url`, `level`) VALUES {$paramsStr}; ";
             $st = $this->getConnection()
                 ->prepare($insertSql);
 

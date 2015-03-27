@@ -7,6 +7,12 @@ use spartaksun\sitemap\generator\loader\LoaderException;
 
 class SiteWorker
 {
+
+    /**
+     * @var parser\HtmlParser
+     */
+    public $parser;
+
     /**
      * @var Generator
      */
@@ -19,28 +25,21 @@ class SiteWorker
 
 
     /**
-     * @param Generator $generator
-     */
-    public function __construct(Generator $generator)
-    {
-        $this->generator = $generator;
-    }
-
-    /**
      * Runs processing of site
-     * @param $startUrl
+     * @param Generator $generator
      * @throws GeneratorException
      */
-    public function run($startUrl)
+    public function run(Generator $generator)
     {
-        try {
-            $this->mainPage = UrlHelper::getMainPageUrl($startUrl);
+        $this->generator = $generator;
 
-            $generator = $this->generator;
+        try {
+            $this->mainPage = UrlHelper::getMainPageUrl($generator->startUrl);
+
             $storage = $generator->storage;
             $storage->init();
 
-            $this->processAll([$this->mainPage], 1);
+            $this->processAll([$this->mainPage], $generator->level);
 
             $storage->setOffset(0);
             $storage->setLimit(10000);
@@ -64,10 +63,14 @@ class SiteWorker
         $currentLevel = 1;
         do {
 
-            $levelResult = $this->processLevel($levelResult);
+            $levelResult = $this->processLevel($levelResult, $currentLevel);
             $currentLevel++;
 
-        } while (!empty($levelResult) || (!is_null($maxLevel) && $currentLevel <= $maxLevel));
+            if(!is_null($maxLevel) && $currentLevel >= $maxLevel) {
+                break;
+            }
+
+        } while (!empty($levelResult));
 
     }
 
@@ -76,22 +79,18 @@ class SiteWorker
      * @throws LoaderException
      * @return array
      */
-    protected function processUrl($url)
+    protected function processUrl($url, $currentLevel)
     {
-        $generator = $this->generator;
-
-        $parser = new parser\HtmlParser(
-            $generator->loader->load($url)
-        );
+        $html = $this->generator->loader->load($url);
 
         $normalizedUrls = UrlHelper::normalizeUrls(
-            $parser->getUrls(),
+            $this->parser->getUrls($html),
             $this->mainPage,
             $url
         );
 
-        return $generator->storage
-            ->add($normalizedUrls);
+        return $this->generator->storage
+            ->add($normalizedUrls, $currentLevel);
 
     }
 
@@ -99,13 +98,13 @@ class SiteWorker
      * @param array $urls
      * @return array
      */
-    protected function processLevel(array $urls)
+    protected function processLevel(array $urls, $currentLevel)
     {
         $levelUrlsTotal = [];
 
         foreach($urls as $url) {
             try {
-                foreach($this->processUrl($url) as $p) {
+                foreach($this->processUrl($url, $currentLevel) as $p) {
                     array_push($levelUrlsTotal, $p);
                 }
             } catch (LoaderException $e) {

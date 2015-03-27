@@ -23,7 +23,7 @@ interface UniqueValueStorage
      * @throws StorageException
      * @return array of newly added urls
      */
-    public function add(array $values);
+    public function add(array $values, $level);
 
     /**
      * Number of storage elements

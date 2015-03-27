@@ -23,7 +23,7 @@ class UrlHelper
      *
      * @param $url
      * @return array
-     * @throws \ErrorException
+     * @throws parser\ParserException
      */
     public static function parse($url)
     {
@@ -32,7 +32,7 @@ class UrlHelper
             return $parsed;
         }
 
-        throw new \ErrorException("Can not parse {$url}");
+        throw new parser\ParserException("Can not parse {$url}");
     }
 
     /**
@@ -90,7 +90,14 @@ class UrlHelper
         } elseif ($url == '/') {
             return self::prepare($mainPageUrl);
         } elseif (!preg_match('~mailto:~', $url)) {
-            return self::prepare(rtrim($currentUrl, chr('/')) . "/" . $url);
+            $pos = strrpos('/', $currentUrl, -0);
+            if($pos !== false) {
+                $base = substr($currentUrl, 0, $pos);
+                return self::prepare($base . $url);
+            } else {
+                return self::prepare($mainPageUrl .'/'. $url);
+            }
+
         } else {
             return false;
         }
