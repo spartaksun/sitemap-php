@@ -3,52 +3,49 @@
 namespace spartaksun\sitemap\generator;
 
 
-use spartaksun\sitemap\generator\storage\ArrayStorage;
-
 class SiteWorker
 {
     /**
-     * @var string
+     * @var Generator
      */
-    private $url;
+    private $generator;
+
 
     /**
-     * @param $url
-     * @throws GeneratorException
+     * @param Generator $generator
      */
-    function __construct($url)
+    function __construct(Generator $generator)
     {
-        if (empty($url) || !is_string($url)) {
-            throw new GeneratorException('Empty html');
-        }
-
-        $this->url = $url;
+        $this->generator = $generator;
     }
 
     /**
      * Runs processing of site
+     * @param $url
+     * @throws GeneratorException
      */
-    public function run()
+    public function run($url)
     {
         try {
+            $generator = $this->generator;
 
-            $loader = new loader\Loader($this->url);
             $parser = new parser\HtmlParser(
-                $loader->load()
+                $generator->loader->load($url)
             );
 
             $normalizedUrls = UrlHelper::normalizeUrls(
                 $parser->getUrls(),
-                UrlHelper::getMainPageUrl($this->url)
+                UrlHelper::getMainPageUrl($url)
             );
 
-            $storage = new ArrayStorage();
-            foreach ($normalizedUrls as $url) {
-                $storage->add($url);
-            }
+            $storage = $generator->storage;
+            $storage->init();
+            $storage->add($normalizedUrls);
+
 
             $total = $storage->total();
-            $storage->offset(5);
+            $storage->setOffset(5);
+            $storage->setLimit(100);
 
             echo $total;
             var_dump($storage->get());

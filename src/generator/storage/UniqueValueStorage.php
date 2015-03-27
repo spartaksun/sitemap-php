@@ -5,12 +5,25 @@ namespace spartaksun\sitemap\generator\storage;
 
 interface UniqueValueStorage
 {
+
     /**
-     * @param string $value
-     * @throws \InvalidArgumentException
+     * @param $storageKey
+     */
+    public function __construct($storageKey);
+
+    /**
+     * Initialize storage
+     * @throws StorageException
+     * @return void
+     */
+    public function init();
+
+    /**
+     * @param array $values
+     * @throws StorageException
      * @return bool false if value was already added to storage
      */
-    public function add($value);
+    public function add(array $values);
 
     /**
      * Number of storage elements
@@ -27,10 +40,10 @@ interface UniqueValueStorage
     /**
      * Apply limit to result
      * @param integer $limit
-     * @throws \InvalidArgumentException
+     * @throws StorageException
      * @return bool
      */
-    public function limit($limit);
+    public function setLimit($limit);
 
     /**
      * Apply offset to result
@@ -38,6 +51,6 @@ interface UniqueValueStorage
      * @throws \InvalidArgumentException
      * @return mixed
      */
-    public function offset($offset);
+    public function setOffset($offset);
 
 }

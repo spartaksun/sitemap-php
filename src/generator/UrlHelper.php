@@ -15,7 +15,6 @@ class UrlHelper
     {
         $parsed = self::parse($url);
 
-        // TODO port!
         return "{$parsed['scheme']}://{$parsed['host']}";
     }
 

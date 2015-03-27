@@ -10,31 +10,52 @@ class ArrayStorage implements UniqueValueStorage
      * Keeps array of values
      * @var array
      */
-    private $storage = [];
+    private $storage;
+
     /**
      * @var int
      */
-    private $offset = 0;
+    private $offset;
+
     /**
      * @var int|null
      */
     private $limit;
+
     /**
      * @var int
      */
-    private $total = 0;
+    private $total;
 
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct($storageKey)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->storage = [];
+        $this->total = 0;
+        $this->offset = 0;
+        $this->limit = null;
+    }
 
     /**
      * @inheritdoc
      */
     public function add($value)
     {
-        if(!is_string($value)) {
-            throw new \InvalidArgumentException('You have only add string values');
+        if (!is_string($value)) {
+            throw new StorageException('You have only add string values');
         }
 
-        if(isset($this->storage[$value])) {
+        if (isset($this->storage[$value])) {
             return false;
         }
         $this->total = array_push($this->storage, $value);
@@ -53,10 +74,10 @@ class ArrayStorage implements UniqueValueStorage
     /**
      * @inheritdoc
      */
-    public function limit($limit)
+    public function setLimit($limit)
     {
-        if($limit <= 0) {
-            throw new \InvalidArgumentException('You should set limit to more than 0.');
+        if ($limit <= 0) {
+            throw new StorageException('You should set limit to more than 0.');
         }
 
         $this->limit = $limit;
@@ -65,10 +86,10 @@ class ArrayStorage implements UniqueValueStorage
     /**
      * @inheritdoc
      */
-    public function offset($offset)
+    public function setOffset($offset)
     {
-        if($offset <= 0) {
-            throw new \InvalidArgumentException('You should set offset to more than 0.');
+        if ($offset <= 0) {
+            throw new StorageException('You should set offset to more than 0.');
         }
 
         $this->offset = $offset;

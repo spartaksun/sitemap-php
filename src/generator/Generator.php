@@ -5,14 +5,24 @@ namespace spartaksun\sitemap\generator;
 
 class Generator
 {
+
     /**
-     * @param $url
+     * @var storage\UniqueValueStorage
+     */
+    public $storage;
+
+    /**
+     * @var loader\Loader
+     */
+    public $loader;
+
+    /**
+     * @param $startUrl
      * @throws \ErrorException
      */
-    public function generate($url)
+    public function generate($startUrl)
     {
-        $worker = new SiteWorker($url);
-        $worker->run();
+        $worker = new SiteWorker($this);
+        $worker->run($startUrl);
     }
-
 }
