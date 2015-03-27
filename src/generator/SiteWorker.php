@@ -3,7 +3,7 @@
 namespace spartaksun\sitemap\generator;
 
 
-use spartaksun\sitemap\generator\storage\UniqueValueStorage;
+use spartaksun\sitemap\generator\loader\LoaderException;
 
 class SiteWorker
 {
@@ -12,6 +12,9 @@ class SiteWorker
      */
     private $generator;
 
+    /**
+     * @var string url of main page
+     */
     private $mainPage;
 
 
@@ -37,7 +40,7 @@ class SiteWorker
             $storage = $generator->storage;
             $storage->init();
 
-            $this->processAll([$this->mainPage], 2);
+            $this->processAll([$this->mainPage], 1);
 
             $storage->setOffset(0);
             $storage->setLimit(10000);
@@ -52,6 +55,10 @@ class SiteWorker
         }
     }
 
+    /**
+     * @param array $levelResult
+     * @param null $maxLevel
+     */
     protected function processAll(array $levelResult, $maxLevel = null)
     {
         $currentLevel = 1;
@@ -66,6 +73,7 @@ class SiteWorker
 
     /**
      * @param $url
+     * @throws LoaderException
      * @return array
      */
     protected function processUrl($url)
@@ -75,6 +83,7 @@ class SiteWorker
         $parser = new parser\HtmlParser(
             $generator->loader->load($url)
         );
+
         $normalizedUrls = UrlHelper::normalizeUrls(
             $parser->getUrls(),
             $this->mainPage,
@@ -86,14 +95,24 @@ class SiteWorker
 
     }
 
+    /**
+     * @param array $urls
+     * @return array
+     */
     protected function processLevel(array $urls)
     {
         $levelUrlsTotal = [];
 
         foreach($urls as $url) {
-            foreach($this->processUrl($url) as $p) {
-                array_push($levelUrlsTotal, $p);
+            try {
+                foreach($this->processUrl($url) as $p) {
+                    array_push($levelUrlsTotal, $p);
+                }
+            } catch (LoaderException $e) {
+                // TODO mark URL as failed
+                continue;
             }
+
         }
 
         return $levelUrlsTotal;

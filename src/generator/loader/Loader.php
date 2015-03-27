@@ -4,6 +4,7 @@ namespace spartaksun\sitemap\generator\loader;
 
 
 use GuzzleHttp\Client;
+use RuntimeException;
 
 class Loader
 {
@@ -45,7 +46,7 @@ class Loader
                 default:
                     throw new LoaderException('Incorrect status code:' . $response->getStatusCode());
             }
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             throw new LoaderException('RuntimeException: ' . $e->getMessage());
         }
     }

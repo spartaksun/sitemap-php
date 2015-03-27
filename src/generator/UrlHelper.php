@@ -27,7 +27,7 @@ class UrlHelper
      */
     public static function parse($url)
     {
-        $parsed = parse_url($url);
+        $parsed = parse_url(trim($url));
         if (!empty($parsed['scheme']) && !empty($parsed['host'])) {
             return $parsed;
         }
@@ -76,11 +76,15 @@ class UrlHelper
      */
     public static function normalize($url, $mainPageUrl, $currentUrl)
     {
-
+        if(preg_match('~\.(jpg|jpeg|png|giff|tiff)$~i', $url)) {
+            return false;
+        }
         if (preg_match("~^http(|s):\/\/~", $url)) {
             return self::prepare($url);
         } elseif (preg_match("~^\/\/(.*)~", $url, $matches)) {
             return "http://{$matches[1]}";
+        } elseif(preg_match('~javascript~', $url)){
+            return false;
         } elseif (preg_match("~^\/~", $url)) {
             return self::prepare($mainPageUrl . $url);
         } elseif ($url == '/') {
@@ -102,7 +106,7 @@ class UrlHelper
         $parsed = self::parse($url);
 
         $query = (!empty($parsed['query'])) ? "?{$parsed['query']}" : '';
-        $path = (!empty($parsed['path'])) ? $parsed['path'] : '';
+        $path = (!empty($parsed['path'])) ? str_replace('//', '/', $parsed['path']) : '';
         $resultUrl = "{$parsed['scheme']}://{$parsed['host']}{$path}{$query}";
 
         return $resultUrl;
