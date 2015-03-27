@@ -55,13 +55,13 @@ class MysqlStorage implements UniqueValueStorage
     /**
      *
      */
-//    public function __destruct()
-//    {
-//        $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;";
-//        return $this->getConnection()
-//            ->prepare($sql)
-//            ->execute();
-//    }
+    public function __destruct()
+    {
+        $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;";
+        return $this->getConnection()
+            ->prepare($sql)
+            ->execute();
+    }
 
     /**
      * @inheritdoc
