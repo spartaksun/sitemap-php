@@ -108,13 +108,14 @@ class MysqlStorage implements UniqueValueStorage
             $st = $this->getConnection()
                 ->prepare($insertSql);
 
-            $result = $st->execute($unique);
-
-            return $result;
+            if($st->execute($unique)) {
+                return $unique;
+            } else {
+                throw new StorageException('PDO: ' . serialize($st->errorInfo()));
+            }
         }
 
-        return false;
-
+        return [];
     }
 
     /**
@@ -134,8 +135,8 @@ class MysqlStorage implements UniqueValueStorage
 
         $st = $this->getConnection()->prepare($existsSql);
         $st->execute($values);
+        $exists = $st->fetchAll(\PDO::FETCH_COLUMN);
 
-        $exists = (array)$st->fetchColumn();
         $callback = function ($value) use ($exists) {
             if (in_array($value, $exists)) {
                 return false;

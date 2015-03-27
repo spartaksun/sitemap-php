@@ -39,10 +39,11 @@ class UrlHelper
      * Cast to full URL
      * @param array $urls
      * @param $mainPageUrl
+     * @param $currentUrl
      * @return array
      * @throws \ErrorException
      */
-    public static function normalizeUrls(array $urls, $mainPageUrl)
+    public static function normalizeUrls(array $urls, $mainPageUrl, $currentUrl)
     {
         $parsed = self::parse($mainPageUrl);
 
@@ -53,7 +54,7 @@ class UrlHelper
                 continue;
             }
 
-            $url = self::normalize($url, $mainPageUrl);
+            $url = self::normalize($url, $mainPageUrl, $currentUrl);
             if (!$url) {
                 continue;
             }
@@ -70,19 +71,22 @@ class UrlHelper
      * Cast to full URL
      * @param array $url
      * @param $mainPageUrl
+     * @param $currentUrl
      * @return array
      */
-    public static function normalize($url, $mainPageUrl)
+    public static function normalize($url, $mainPageUrl, $currentUrl)
     {
 
         if (preg_match("~^http(|s):\/\/~", $url)) {
             return self::prepare($url);
-        }  elseif (preg_match("~^\/\/(.*)~", $url, $matches)) {
+        } elseif (preg_match("~^\/\/(.*)~", $url, $matches)) {
             return "http://{$matches[1]}";
-        }  elseif (preg_match("~^\/~", $url)) {
+        } elseif (preg_match("~^\/~", $url)) {
             return self::prepare($mainPageUrl . $url);
         } elseif ($url == '/') {
             return self::prepare($mainPageUrl);
+        } elseif (!preg_match('~mailto:~', $url)) {
+            return self::prepare(rtrim($currentUrl, chr('/')) . "/" . $url);
         } else {
             return false;
         }
@@ -116,8 +120,8 @@ class UrlHelper
 
         if ($parsed['host'] == $host) {
             return true;
-
         }
+
         return false;
     }
 

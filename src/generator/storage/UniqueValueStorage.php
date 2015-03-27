@@ -21,7 +21,7 @@ interface UniqueValueStorage
     /**
      * @param array $values
      * @throws StorageException
-     * @return bool false if value was already added to storage
+     * @return array of newly added urls
      */
     public function add(array $values);
 
