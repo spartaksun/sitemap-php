@@ -7,6 +7,12 @@ interface UniqueValueStorageInterface
 {
 
     /**
+     * @param callable $callback
+     * @return mixed
+     */
+    public function onAdd(\Closure $callback);
+
+    /**
      * @param $storageKey
      */
     public function setKey($storageKey);

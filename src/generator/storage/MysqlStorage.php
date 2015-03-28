@@ -7,6 +7,11 @@ class MysqlStorage implements UniqueValueStorageInterface
 {
 
     /**
+     * @var \Closure
+     */
+    public $onAddCallback;
+
+    /**
      * DB connection config
      * @var array
      *      [
@@ -109,7 +114,11 @@ class MysqlStorage implements UniqueValueStorageInterface
             $st = $this->getConnection()
                 ->prepare($insertSql);
 
-            if($st->execute($unique)) {
+            if ($st->execute($unique)) {
+                if ($this->onAddCallback instanceof \Closure) {
+                    call_user_func($this->onAddCallback, $countUniqueValues);
+                }
+
                 return $unique;
             } else {
                 throw new StorageException('PDO: ' . serialize($st->errorInfo()));
@@ -117,6 +126,14 @@ class MysqlStorage implements UniqueValueStorageInterface
         }
 
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function onAdd(\Closure $callback)
+    {
+        $this->onAddCallback = $callback;
     }
 
     /**
@@ -204,8 +221,8 @@ class MysqlStorage implements UniqueValueStorageInterface
      */
     private function getConnection()
     {
-        if (empty($this->db['name']) || empty($this->db['host'])
-            || empty($this->db['user']) || !isset($this->db['pass'])
+        if (empty($this->db['dsn']) || empty($this->db['username'])
+            || !isset($this->db['password'])
         ) {
             throw new StorageException("Incorrect db config ". serialize($this->db));
         }
@@ -214,9 +231,9 @@ class MysqlStorage implements UniqueValueStorageInterface
         if (empty($connection)) {
             try {
                 $connection = new \PDO(
-                    'mysql:dbname=' . $this->db['name'] . ';host=' . $this->db['host'],
-                    $this->db['user'],
-                    $this->db['pass']
+                    $this->db['dsn'],
+                    $this->db['username'],
+                    $this->db['password']
                 );
             } catch (\PDOException $e) {
                 throw new StorageException("DB error: " . $e->getTraceAsString());
