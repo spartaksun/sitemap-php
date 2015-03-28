@@ -4,6 +4,7 @@ namespace spartaksun\sitemap\generator;
 
 
 use spartaksun\sitemap\generator\loader\LoaderException;
+use spartaksun\sitemap\generator\parser\ParserInterface;
 
 class SiteWorker
 {
@@ -23,6 +24,14 @@ class SiteWorker
      */
     private $mainPage;
 
+
+    /**
+     * @param ParserInterface $parser
+     */
+    public function __construct(ParserInterface $parser)
+    {
+        $this->parser = $parser;
+    }
 
     /**
      * Runs processing of site

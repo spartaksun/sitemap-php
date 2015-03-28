@@ -3,7 +3,7 @@
 namespace spartaksun\sitemap\generator\parser;
 
 
-class HtmlParser
+class HtmlParser implements ParserInterface
 {
 
     /**

@@ -3,7 +3,7 @@
 namespace spartaksun\sitemap\generator\storage;
 
 
-class MysqlStorage implements UniqueValueStorage
+class MysqlStorage implements UniqueValueStorageInterface
 {
 
     /**
@@ -47,15 +47,15 @@ class MysqlStorage implements UniqueValueStorage
     /**
      * @inheritdoc
      */
-    public function __construct($storageKey)
+    public function setKey($storageKey)
     {
         $this->storageKey = $storageKey;
     }
 
     /**
-     *
+     * Drop current table
      */
-    public function __destruct()
+    public function deInit()
     {
         $sql = "DROP TABLE IF EXISTS `{$this->tableName()}`;";
         return $this->getConnection()

@@ -3,16 +3,19 @@
 namespace spartaksun\sitemap\generator;
 
 
+use spartaksun\sitemap\generator\loader\LoaderInterface;
+use spartaksun\sitemap\generator\storage\UniqueValueStorageInterface;
+
 class Generator
 {
 
     /**
-     * @var storage\UniqueValueStorage
+     * @var storage\UniqueValueStorageInterface
      */
     public $storage;
 
     /**
-     * @var loader\Loader
+     * @var loader\GuzzleLoader
      */
     public $loader;
 
@@ -31,19 +34,26 @@ class Generator
      */
     public $level = 1;
 
+
     /**
-     * @param $startUrl
+     * @param LoaderInterface $loader
+     * @param SiteWorker $worker
+     * @param UniqueValueStorageInterface $storage
      */
-    public function __construct($startUrl)
+    public function __construct(LoaderInterface $loader, SiteWorker $worker, UniqueValueStorageInterface $storage)
     {
-        $this->startUrl = $startUrl;
+        $this->loader = $loader;
+        $this->worker = $worker;
+        $this->storage = $storage;
     }
 
     /**
+     * @param $startUrl
      * @throws \ErrorException
      */
-    public function generate()
+    public function generate($startUrl)
     {
+        $this->startUrl = $startUrl;
         $this->worker->run($this);
     }
 }
