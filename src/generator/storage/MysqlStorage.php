@@ -5,6 +5,7 @@ namespace spartaksun\sitemap\generator\storage;
 
 use spartaksun\sitemap\generator\Event;
 use spartaksun\sitemap\generator\Object;
+use spartaksun\sitemap\generator\Url;
 
 class MysqlStorage extends Object implements UniqueValueStorageInterface
 {
@@ -139,7 +140,7 @@ class MysqlStorage extends Object implements UniqueValueStorageInterface
         }
 
         $paramsStr = implode(",", array_fill(0, $countValues, '?'));
-        $existsSql = "SELECT url FROM `{$this->tableName()}` WHERE url IN ({$paramsStr}); ";
+        $existsSql = "SELECT `url` FROM `{$this->tableName()}` WHERE `url` IN ({$paramsStr}); ";
 
         $st = $this->getConnection()->prepare($existsSql);
         $st->execute($values);
@@ -181,12 +182,17 @@ class MysqlStorage extends Object implements UniqueValueStorageInterface
         $offset = (int)$this->offset;
         $limit = (int)$this->limit;
 
-        $existsSql = "SELECT url FROM `{$this->tableName()}` ORDER BY id ASC LIMIT {$offset},{$limit}";
+        $sql = "SELECT `url`, `level`  FROM `{$this->tableName()}` ORDER BY id ASC LIMIT {$offset},{$limit}";
 
-        $st = $this->getConnection()->prepare($existsSql);
+        $st = $this->getConnection()->prepare($sql);
         $st->execute();
 
-        return $st->fetchAll(\PDO::FETCH_COLUMN);
+        $result = [];
+        foreach($st->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $result[] = new Url($row);
+        }
+
+        return $result;
     }
 
     /**

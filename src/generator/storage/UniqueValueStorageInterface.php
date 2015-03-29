@@ -45,7 +45,7 @@ interface UniqueValueStorageInterface extends TriggerInterface
 
     /**
      * Unique values. Use limit and offset
-     * @return array
+     * @return \spartaksun\sitemap\generator\Url[]
      */
     public function get();
 

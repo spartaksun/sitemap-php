@@ -5,6 +5,8 @@ namespace spartaksun\sitemap\generator;
 
 use spartaksun\sitemap\generator\loader\LoaderInterface;
 use spartaksun\sitemap\generator\storage\UniqueValueStorageInterface;
+use spartaksun\sitemap\generator\writer\WriterInterface;
+use spartaksun\sitemap\generator\writer\XmlWriter;
 
 class Generator extends Object
 {
@@ -30,6 +32,11 @@ class Generator extends Object
     public $siteProcessor;
 
     /**
+     * @var WriterInterface
+     */
+    public $writer;
+
+    /**
      * @var string URL
      */
     public $startUrl;
@@ -40,24 +47,29 @@ class Generator extends Object
     public $level = 1;
 
 
+
     /**
+     * @param UniqueValueStorageInterface $storage
      * @param LoaderInterface $loader
      * @param SiteProcessor $siteProcessor
-     * @param UniqueValueStorageInterface $storage
+     * @param WriterInterface $writer
      */
     public function __construct(UniqueValueStorageInterface $storage, LoaderInterface $loader,
-        SiteProcessor $siteProcessor)
+        SiteProcessor $siteProcessor, WriterInterface $writer)
     {
         $this->loader           = $loader;
         $this->siteProcessor    = $siteProcessor;
         $this->storage          = $storage;
+        $this->writer           = $writer;
+
     }
 
     /**
      * @param $startUrl
      * @param $maxLevel
+     * @param $filePath
      */
-    public function generate($startUrl, $maxLevel)
+    public function generate($startUrl, $maxLevel, $filePath)
     {
         $this->startUrl = $startUrl;
 
@@ -66,8 +78,8 @@ class Generator extends Object
             $this->storage->init();
 
             $this->siteProcessor->setMaxLevel($maxLevel);
-            $this->siteProcessor->process($this->startUrl);
-
+            $this->siteProcessor->process($startUrl);
+            $this->writer->write($startUrl, $filePath);
 
             $this->storage->deInit();
 
