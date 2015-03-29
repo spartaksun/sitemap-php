@@ -3,13 +3,11 @@
 namespace spartaksun\sitemap\generator\storage;
 
 
-class MysqlStorage implements UniqueValueStorageInterface
-{
+use spartaksun\sitemap\generator\Event;
+use spartaksun\sitemap\generator\Object;
 
-    /**
-     * @var \Closure
-     */
-    public $onAddCallback;
+class MysqlStorage extends Object implements UniqueValueStorageInterface
+{
 
     /**
      * DB connection config
@@ -115,10 +113,10 @@ class MysqlStorage implements UniqueValueStorageInterface
                 ->prepare($insertSql);
 
             if ($st->execute($unique)) {
-                if ($this->onAddCallback instanceof \Closure) {
-                    call_user_func($this->onAddCallback, $countUniqueValues);
-                }
 
+                $this->trigger(self::EVENT_ADD_URLS, new Event([
+                    'amount' => $countUniqueValues,
+                ]));
                 return $unique;
             } else {
                 throw new StorageException('PDO: ' . serialize($st->errorInfo()));
@@ -126,14 +124,6 @@ class MysqlStorage implements UniqueValueStorageInterface
         }
 
         return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function onAdd(\Closure $callback)
-    {
-        $this->onAddCallback = $callback;
     }
 
     /**

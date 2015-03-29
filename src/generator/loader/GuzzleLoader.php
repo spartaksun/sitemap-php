@@ -5,8 +5,9 @@ namespace spartaksun\sitemap\generator\loader;
 
 use GuzzleHttp\Client;
 use RuntimeException;
+use spartaksun\sitemap\generator\Object;
 
-class GuzzleLoader implements LoaderInterface
+class GuzzleLoader extends Object implements LoaderInterface
 {
     /**
      * @var string

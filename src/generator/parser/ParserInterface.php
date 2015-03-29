@@ -3,7 +3,9 @@
 namespace spartaksun\sitemap\generator\parser;
 
 
-interface ParserInterface
+use spartaksun\sitemap\generator\TriggerInterface;
+
+interface ParserInterface extends TriggerInterface
 {
     public function getUrls($html);
 }

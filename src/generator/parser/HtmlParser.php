@@ -3,7 +3,9 @@
 namespace spartaksun\sitemap\generator\parser;
 
 
-class HtmlParser implements ParserInterface
+use spartaksun\sitemap\generator\Object;
+
+class HtmlParser extends Object implements ParserInterface
 {
 
     /**
@@ -21,8 +23,8 @@ class HtmlParser implements ParserInterface
         libxml_use_internal_errors(true);
         $dom->loadHTML($html);
 
-        $links = $dom->getElementsByTagName('a');
-        /* @var $links \DOMElement[] */
+        $links = $dom->getElementsByTagName('a'); /* @var $links \DOMElement[] */
+
         $urls = [];
         foreach ($links as $link) {
             $urls[] = $link->getAttribute('href');

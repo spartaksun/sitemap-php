@@ -3,14 +3,13 @@
 namespace spartaksun\sitemap\generator\storage;
 
 
-interface UniqueValueStorageInterface
+use spartaksun\sitemap\generator\TriggerInterface;
+
+interface UniqueValueStorageInterface extends TriggerInterface
 {
 
-    /**
-     * @param callable $callback
-     * @return mixed
-     */
-    public function onAdd(\Closure $callback);
+    const EVENT_ADD_URLS = 'on_add_urls';
+
 
     /**
      * @param $storageKey
@@ -23,6 +22,13 @@ interface UniqueValueStorageInterface
      * @return void
      */
     public function init();
+
+    /**
+     * Destroy storage
+     * @throws StorageException
+     * @return void
+     */
+    public function deInit();
 
     /**
      * @param array $values

@@ -3,7 +3,9 @@
 namespace spartaksun\sitemap\generator\loader;
 
 
-interface LoaderInterface
+use spartaksun\sitemap\generator\TriggerInterface;
+
+interface LoaderInterface extends TriggerInterface
 {
     public function load($url);
 }

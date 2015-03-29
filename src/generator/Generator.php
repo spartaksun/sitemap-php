@@ -6,8 +6,13 @@ namespace spartaksun\sitemap\generator;
 use spartaksun\sitemap\generator\loader\LoaderInterface;
 use spartaksun\sitemap\generator\storage\UniqueValueStorageInterface;
 
-class Generator
+class Generator extends Object
 {
+
+    const ON_ADD_URLS = 'on_ad_urls';
+    const ON_PARSE_FINISH = 'on_parse_finish';
+    const ON_WRITE_FINISH = 'on_write_finish';
+
 
     /**
      * @var storage\UniqueValueStorageInterface
@@ -20,9 +25,9 @@ class Generator
     public $loader;
 
     /**
-     * @var SiteWorker
+     * @var SiteProcessor
      */
-    public $worker;
+    public $siteProcessor;
 
     /**
      * @var string URL
@@ -37,23 +42,41 @@ class Generator
 
     /**
      * @param LoaderInterface $loader
-     * @param SiteWorker $worker
+     * @param SiteProcessor $siteProcessor
      * @param UniqueValueStorageInterface $storage
      */
-    public function __construct(LoaderInterface $loader, SiteWorker $worker, UniqueValueStorageInterface $storage)
+    public function __construct(UniqueValueStorageInterface $storage, LoaderInterface $loader,
+        SiteProcessor $siteProcessor)
     {
-        $this->loader = $loader;
-        $this->worker = $worker;
-        $this->storage = $storage;
+        $this->loader           = $loader;
+        $this->siteProcessor    = $siteProcessor;
+        $this->storage          = $storage;
     }
 
     /**
      * @param $startUrl
-     * @throws \ErrorException
+     * @param $maxLevel
      */
-    public function generate($startUrl)
+    public function generate($startUrl, $maxLevel)
     {
         $this->startUrl = $startUrl;
-        $this->worker->run($this);
+
+        try {
+
+            $this->storage->init();
+
+            $this->siteProcessor->setMaxLevel($maxLevel);
+            $this->siteProcessor->process($this->startUrl);
+
+
+            $this->storage->deInit();
+
+        } catch (loader\LoaderException $e) {
+            echo $e->getMessage();
+        } catch (parser\ParserException $e) {
+            echo $e->getMessage();
+        } finally {
+            $this->storage->deInit();
+        }
     }
 }
