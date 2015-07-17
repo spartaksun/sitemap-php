@@ -2,8 +2,11 @@ Sitemap generator (with parser).
 =============================
 
 ## Example of usage
+```code
+composer require spartaksun/sitemap-php
+```
+
 ```php 
-<?php
 use spartaksun\sitemap\generator as generator;
 ```
 ### Choose type of storage:
@@ -44,9 +47,9 @@ $generator->writer->on(
 ```php
 try {
     $generator->generate(
-        'http://site.ru' /* main site page */,
+        'http://site.ru' /* start page */,
         3 /* nesting level */,
-        '/path/to/save.zip' /* path to save */
+        '/path/to/save.zip' /* path to save archive */
     );
 } catch (generator\GeneratorException $e) {
     // do something ...
